@@ -1045,8 +1045,8 @@ public final class StringTools extends com.braintribe.utils.lcd.StringTools {
 	}
 
 	/**
-	 * Encodes a Map<String,String> into a single String. The result can be decoded with {@link #decodeStringMapFromString(String)} Entries that have
-	 * either a key or a value with null will be excluded.
+	 * Encodes a @{code Map<String,String>} into a single String. The result can be decoded with {@link #decodeStringMapFromString(String)} Entries
+	 * that have either a key or a value with null will be excluded.
 	 *
 	 * @param map
 	 *            The map that should be encoded to a String.
@@ -1083,7 +1083,7 @@ public final class StringTools extends com.braintribe.utils.lcd.StringTools {
 	}
 
 	/**
-	 * Decodes a String to a Map<String,String> object. The String provided should have been encoded by {@link #encodeStringMapToString(Map)}.
+	 * Decodes a String to a {@code Map<String,String> object}. The String provided should have been encoded by {@link #encodeStringMapToString(Map)}.
 	 *
 	 * @param encodedStringMap
 	 *            The encoded String.

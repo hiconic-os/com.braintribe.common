@@ -75,9 +75,6 @@ public final class CompiledFormatter {
 	 * The {@link #format(java.util.Locale,String,Object...) format} method for this object which has a locale argument does not change this value.
 	 *
 	 * @return {@code null} if no localization is applied, otherwise a locale
-	 *
-	 * @throws FormatterClosedException
-	 *             If this formatter has been closed by invoking its {@link #close()} method
 	 */
 	public Locale locale() {
 		return l;
@@ -223,7 +220,7 @@ public final class CompiledFormatter {
 	}
 
 	private class FixedString implements FormatString {
-		private String s;
+		private final String s;
 
 		FixedString(String s) {
 			this.s = s;

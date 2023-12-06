@@ -40,7 +40,7 @@ public class BasicFileReaderBuilder implements FileReaderBuilder {
 
 	private final File file;
 
-	private String charsetName = StandardCharsets.UTF_8.name();
+	private Charset charset = StandardCharsets.UTF_8;
 
 	public BasicFileReaderBuilder(File file) {
 		this.file = file;
@@ -48,13 +48,13 @@ public class BasicFileReaderBuilder implements FileReaderBuilder {
 
 	@Override
 	public CharsetReaderBuilder withCharset(String charsetName) {
-		this.charsetName = charsetName;
+		this.charset = Charset.forName(charsetName);
 		return this;
 	}
 
 	@Override
 	public CharsetReaderBuilder withCharset(Charset charset) {
-		this.charsetName = charset.name();
+		this.charset = charset;
 		return this;
 	}
 
@@ -65,13 +65,13 @@ public class BasicFileReaderBuilder implements FileReaderBuilder {
 
 	@Override
 	public String asString() {
-		return FileTools.readStringFromFile(file, charsetName);
+		return Files4J8.readString(file, charset);
 	}
 
 	@Override
 	public Stream<String> asLineStream() {
 		try {
-			return Files.lines(file.toPath(), Charset.forName(charsetName));
+			return Files.lines(file.toPath(), charset);
 		} catch (IOException e) {
 			throw new UncheckedIOException("Unable to read lines from file: " + file.getAbsolutePath(), e);
 		}
@@ -80,7 +80,7 @@ public class BasicFileReaderBuilder implements FileReaderBuilder {
 	@Override
 	public List<String> asLines() {
 		try {
-			return Files.readAllLines(file.toPath(), Charset.forName(charsetName));
+			return Files.readAllLines(file.toPath(), charset);
 		} catch (IOException e) {
 			throw new UncheckedIOException("Unable to read lines from file: " + file.getAbsolutePath(), e);
 		}
@@ -115,7 +115,7 @@ public class BasicFileReaderBuilder implements FileReaderBuilder {
 
 	@Override
 	public <T> T fromReader(CheckedFunction<? super Reader, T, IOException> readerUser) {
-		try (Reader reader = reader(Charset.forName(charsetName))) {
+		try (Reader reader = reader(charset)) {
 			return readerUser.apply(reader);
 
 		} catch (final IOException e) {
@@ -125,7 +125,7 @@ public class BasicFileReaderBuilder implements FileReaderBuilder {
 
 	@Override
 	public void consumeReader(CheckedConsumer<? super Reader, IOException> readerConsumer) {
-		try (Reader reader = reader(Charset.forName(charsetName))) {
+		try (Reader reader = reader(charset)) {
 			readerConsumer.accept(reader);
 
 		} catch (final IOException e) {

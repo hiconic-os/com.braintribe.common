@@ -41,6 +41,7 @@ public class ReverseOrderURLClassLoader extends URLClassLoader {
 	private volatile boolean closed = false;
 
 	private final ClassLoader platformClassLoader;
+	@SuppressWarnings("removal")
 	private final SecurityManager securityManager;
 	private final Predicate<String> doParentFirst;
 	private final ReentrantLock lock = new ReentrantLock();
@@ -71,6 +72,7 @@ public class ReverseOrderURLClassLoader extends URLClassLoader {
 		return j;
 	}
 
+	@SuppressWarnings("removal")
 	private SecurityManager getSecurityManager() {
 		SecurityManager securityManager1 = System.getSecurityManager();
 		if (securityManager != null) {
@@ -80,6 +82,7 @@ public class ReverseOrderURLClassLoader extends URLClassLoader {
 		return securityManager1;
 	}
 
+	@SuppressWarnings({ "removal" })
 	/** Refresh the system policy file, to pick up eventual changes. */
 	protected void refreshPolicy() {
 		try {

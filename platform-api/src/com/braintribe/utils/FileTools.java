@@ -355,8 +355,8 @@ public class FileTools extends com.braintribe.utils.lcd.FileTools {
 	/**
 	 * Invokes {@link FileTools#readStringFromFile(File, String)} with <code>UTF-8</code> encoding.
 	 */
-	public static String readStringFromFile(final File file) throws UncheckedIOException {
-		return readStringFromFile(file, Constants.ENCODING_UTF8);
+	public static String readStringFromFile(File file) throws UncheckedIOException {
+		return readStringFromFile(file, StandardCharsets.UTF_8.name());
 	}
 
 	/**
@@ -365,45 +365,8 @@ public class FileTools extends com.braintribe.utils.lcd.FileTools {
 	 * @throws UncheckedIOException
 	 *             if any error occurs
 	 */
-	public static String readStringFromFile(final File file, final String encoding) throws UncheckedIOException {
-
-		BufferedReader reader = null;
-		IOException exceptionWhileReading = null;
-
-		try {
-			final InputStream inputStream = new FileInputStream(file);
-			final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, encoding);
-			reader = new BufferedReader(inputStreamReader);
-			final int bufferSize = IOTools.SIZE_8K;
-			final StringBuilder stringBuilder = new StringBuilder(bufferSize);
-			final char[] buffer = new char[bufferSize];
-
-			while (true) {
-				final int charactersRead = reader.read(buffer);
-				if (charactersRead < 0) {
-					break;
-				}
-				stringBuilder.append(String.valueOf(buffer, 0, charactersRead));
-			}
-			return stringBuilder.toString();
-		} catch (final IOException e) {
-			exceptionWhileReading = e;
-			throw new UncheckedIOException("Error while reading from file " + file + "!", e);
-		} finally {
-			try {
-				if (reader != null) {
-					reader.close();
-				}
-			} catch (final IOException exceptionWileClosingStream) {
-				if (exceptionWhileReading == null) {
-					throw new UncheckedIOException("Error while closing stream after successfully reading from " + file + "!",
-							exceptionWileClosingStream);
-				} else {
-					exceptionWhileReading.addSuppressed(exceptionWileClosingStream);
-				}
-			}
-		}
-
+	public static String readStringFromFile(File file, String encoding) {
+		return read(file).withCharset(encoding).asString();
 	}
 
 	/**
@@ -419,51 +382,14 @@ public class FileTools extends com.braintribe.utils.lcd.FileTools {
 	 * @throws UncheckedIOException
 	 *             if any error occurs
 	 */
-	public static String readFirstLineFromFile(final File file, final String encoding) throws UncheckedIOException {
-		BufferedReader reader = null;
-		IOException exceptionWhileReading = null;
-
-		try {
-			final InputStream inputStream = new FileInputStream(file);
-			final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, encoding);
-			reader = new BufferedReader(inputStreamReader);
-
-			String firstLine = reader.readLine();
-			return firstLine;
-		} catch (final IOException e) {
-			exceptionWhileReading = e;
-			throw new UncheckedIOException("Error while reading from file " + file + "!", e);
-		} finally {
-			try {
-				if (reader != null) {
-					reader.close();
-				}
-			} catch (final IOException exceptionWileClosingStream) {
-				if (exceptionWhileReading == null) {
-					throw new UncheckedIOException("Error while closing stream after successfully reading from " + file + "!",
-							exceptionWileClosingStream);
-				} else {
-					// ignore this exception
-				}
-			}
-		}
+	public static String readFirstLineFromFile(File file, String encoding) {
+		return read(file).withCharset(encoding).asLineStream() //
+				.findFirst() //
+				.orElse(null);
 	}
 
-	public static List<String> readLines(final File file, final String encoding) throws UncheckedIOException {
-		List<String> result = newList();
-
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding))) {
-
-			String line;
-			while ((line = reader.readLine()) != null) {
-				result.add(line);
-			}
-
-		} catch (final IOException e) {
-			throw new UncheckedIOException("Error while reading from file " + file + "!", e);
-		}
-
-		return result;
+	public static List<String> readLines(File file, String encoding) {
+		return read(file).withCharset(encoding).asLines();
 	}
 
 	/** Equivalent to {@code writeBytesToFile(file, bytes, false)} (i.e. not appending, but overwriting the file) */
@@ -1397,6 +1323,10 @@ public class FileTools extends com.braintribe.utils.lcd.FileTools {
 		return relPath;
 	}
 
+	/**
+	 * @deprecated Seems to be unused. Remove in GWT as well!!!
+	 */
+	@Deprecated
 	public static void patternFormatTextFile(File textInputFile, File outputFile, String encoding, Map<String, Object> properties,
 			Object defaultValue) throws NullPointerException, IOException {
 

@@ -438,7 +438,7 @@ public class DOMTools {
 	}
 
 	/**
-	 * {@link #encode(String, int[]) Encodes} characters <code>&, <, >, ", =, '</code>.
+	 * {@link #encode(String, int[]) Encodes} characters {@code &, <, >, ", =, '}.
 	 */
 	public static String encode(final String text) {
 		return encode(text, new int[] { 38, 60, 62, 34, 61, 39 });
