@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
@@ -20,42 +19,23 @@ import com.braintribe.utils.IOTools;
 public class Files4J8 {
 
 	public static String readString(File file, Charset charset) throws UncheckedIOException {
-		BufferedReader reader = null;
-		IOException exceptionWhileReading = null;
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset))) {
 
-		try {
-			final InputStream inputStream = new FileInputStream(file);
-			final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, charset);
-			reader = new BufferedReader(inputStreamReader);
-			final int bufferSize = IOTools.SIZE_8K;
-			final StringBuilder stringBuilder = new StringBuilder(bufferSize);
-			final char[] buffer = new char[bufferSize];
+			int bufferSize = IOTools.SIZE_16K;
+			StringBuilder sb = new StringBuilder(bufferSize);
+			char[] buffer = new char[bufferSize];
 
 			while (true) {
-				final int charactersRead = reader.read(buffer);
-				if (charactersRead < 0) {
-					break;
-				}
-				stringBuilder.append(String.valueOf(buffer, 0, charactersRead));
-			}
-			return stringBuilder.toString();
+				int charactersRead = reader.read(buffer);
 
-		} catch (final IOException e) {
-			exceptionWhileReading = e;
-			throw new UncheckedIOException("Error while reading from file " + file + "!", e);
-		} finally {
-			try {
-				if (reader != null) {
-					reader.close();
-				}
-			} catch (final IOException exceptionWileClosingStream) {
-				if (exceptionWhileReading == null) {
-					throw new UncheckedIOException("Error while closing stream after successfully reading from " + file + "!",
-							exceptionWileClosingStream);
-				} else {
-					exceptionWhileReading.addSuppressed(exceptionWileClosingStream);
-				}
+				if (charactersRead < 0)
+					return sb.toString();
+
+				sb.append(buffer, 0, charactersRead);
 			}
+
+		} catch (IOException e) {
+			throw new UncheckedIOException("Error while reading from file " + file + "!", e);
 		}
 	}
 
