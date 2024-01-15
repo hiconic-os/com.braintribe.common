@@ -1,0 +1,6 @@
+!devrock.releasing.model.configuration.ReleaseConfiguration
+  repositoryPrototype: !com.braintribe.devrock.model.repository.IndexedMavenHttpRepository
+      name: "hiconic-os-release"
+
+  includes:
+    - "com.braintribe.common:*"
