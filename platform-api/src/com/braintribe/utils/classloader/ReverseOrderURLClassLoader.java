@@ -115,49 +115,44 @@ public class ReverseOrderURLClassLoader extends URLClassLoader {
 	 * @see ClassLoader#loadClass(String, boolean)
 	 */
 	@Override
-	protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-		lock.lock();
-		try {
-			log.trace(() -> "Invoking " + getClass().getSimpleName() + ".loadClass(\"" + name + "\", " + resolve + ")");
+	protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+		log.trace(() -> "Invoking " + getClass().getSimpleName() + ".loadClass(\"" + name + "\", " + resolve + ")");
 
-			Class<?> result = findLoadedClass(name);
-			if (result != null) {
-				return finishLoadClass(result, resolve, "java.lang.ClassLoader.findLoadedClass(String)");
-			}
-
-			log.trace(() -> "Class not found with java.lang.ClassLoader.findLoadedClass(String)");
-
-			result = loadWithJavaPlatformClassLoaderIfRelevant(name, resolve);
-			if (result != null) {
-				return finishLoadClass(result, false, "java.net.URLClassLoader.super.loadClass(String, boolean)");
-			}
-
-			boolean parentFirst = doParentFirst != null && doParentFirst.test(name);
-
-			if (!parentFirst) {
-				result = findClassWithUrls(name);
-				if (result != null) {
-					return finishLoadClass(result, resolve, "java.net.URLClassLoader.findClass(String)");
-				}
-			}
-
-			result = superLoadClass(name, resolve);
-			if (result != null) {
-				return finishLoadClass(result, false, "java.net.URLClassLoader.loadClass(String, boolean)");
-			}
-
-			if (parentFirst) {
-				result = findClassWithUrls(name);
-				if (result != null) {
-					return finishLoadClass(result, resolve, "java.net.URLClassLoader.findClass(String)");
-				}
-			}
-
-			log.trace(() -> "Failed to load class " + name + ". URLs:\n" + describeURLState());
-			throw new ClassNotFoundException(name);
-		} finally {
-			lock.unlock();
+		Class<?> result = findLoadedClass(name);
+		if (result != null) {
+			return finishLoadClass(result, resolve, "java.lang.ClassLoader.findLoadedClass(String)");
 		}
+
+		log.trace(() -> "Class not found with java.lang.ClassLoader.findLoadedClass(String)");
+
+		result = loadWithJavaPlatformClassLoaderIfRelevant(name, resolve);
+		if (result != null) {
+			return finishLoadClass(result, false, "java.net.URLClassLoader.super.loadClass(String, boolean)");
+		}
+
+		boolean parentFirst = doParentFirst != null && doParentFirst.test(name);
+
+		if (!parentFirst) {
+			result = findClassWithUrls(name);
+			if (result != null) {
+				return finishLoadClass(result, resolve, "java.net.URLClassLoader.findClass(String)");
+			}
+		}
+
+		result = superLoadClass(name, resolve);
+		if (result != null) {
+			return finishLoadClass(result, false, "java.net.URLClassLoader.loadClass(String, boolean)");
+		}
+
+		if (parentFirst) {
+			result = findClassWithUrls(name);
+			if (result != null) {
+				return finishLoadClass(result, resolve, "java.net.URLClassLoader.findClass(String)");
+			}
+		}
+
+		log.trace(() -> "Failed to load class " + name + ". URLs:\n" + describeURLState());
+		throw new ClassNotFoundException(name);
 	}
 
 	private Class<?> findClassWithUrls(String name) {
