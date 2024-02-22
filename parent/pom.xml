@@ -20,7 +20,7 @@ You should have received a copy of the GNU Lesser General Public License along w
         <V.com.braintribe.wire>[2.0,2.1)</V.com.braintribe.wire>
         <V.com.google.guava>27.1-jre</V.com.google.guava>
         <V.junit>4.13.2</V.junit>
-        <V.org.assertj>3.24.2</V.org.assertj>
+        <V.org.assertj>3.25.3</V.org.assertj>
         <V.org.fusesource.jansi>2.4.0</V.org.fusesource.jansi>
     </properties>
     <licenses>
