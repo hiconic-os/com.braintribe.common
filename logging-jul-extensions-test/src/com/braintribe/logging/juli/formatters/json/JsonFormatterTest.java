@@ -33,6 +33,23 @@ import com.braintribe.logging.Logger;
 public class JsonFormatterTest {
 
 	@Test
+	public void testEncoding() {
+
+		//@formatter:off
+		String[] testPairs = new String[] {
+				"hello\tworld\n", "hello\\tworld\\n",
+				"\n", "\\n",
+				"\nhello", "\\nhello",
+				"\"hello\"", "\\\"hello\\\""
+		};
+		//@formatter:on
+
+		for (int i = 0; i < testPairs.length; i = i + 2) {
+			assertThat(JsonFormatter.escape(testPairs[i])).isEqualTo(testPairs[i + 1]);
+		}
+	}
+
+	@Test
 	public void testSimple() throws Exception {
 		ByteArrayOutputStream logBuffer = new ByteArrayOutputStream();
 		StreamHandler streamHandler = new StreamHandler(logBuffer,

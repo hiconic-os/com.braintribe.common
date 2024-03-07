@@ -11,8 +11,6 @@
 // ============================================================================
 package com.braintribe.logging.juli.formatters.json;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -139,14 +137,9 @@ public class JsonFormatter extends Formatter {
 						fieldValueAsString = fieldValue.toString();
 					}
 
-					try {
-						fieldsStringBuilder.append('\"');
-						fieldsStringBuilder.append(escape(fieldValueAsString));
-						fieldsStringBuilder.append('\"');
-					} catch (IOException e) {
-						throw new UncheckedIOException(
-								"Error while escaping value of field " + pair.first().getName() + " '" + fieldValueAsString + "'", e);
-					}
+					fieldsStringBuilder.append('\"');
+					fieldsStringBuilder.append(escape(fieldValueAsString));
+					fieldsStringBuilder.append('\"');
 
 				}
 			}
@@ -162,7 +155,7 @@ public class JsonFormatter extends Formatter {
 	 * avoid adding another dependency to this very low level library. */
 
 	// ********************** COPY START *******************************************
-	public static String escape(String s) throws IOException {
+	public static String escape(String s) {
 		StringBuilder writer = new StringBuilder(s.length() + 16);
 		writeEscaped(writer, s);
 		return writer.toString();
@@ -186,7 +179,7 @@ public class JsonFormatter extends Formatter {
 		}
 	}
 
-	public static void writeEscaped(StringBuilder writer, String string) throws IOException {
+	public static void writeEscaped(StringBuilder writer, String string) {
 		int len = string.length();
 		int s = 0;
 		int i = 0;
@@ -197,7 +190,7 @@ public class JsonFormatter extends Formatter {
 			if (c < 128) {
 				esc = ESCAPES[c];
 				if (esc != null) {
-					writer.append(string, s, i - s);
+					writer.append(string, s, i);
 					writer.append(esc);
 					s = i + 1;
 				}
@@ -207,7 +200,7 @@ public class JsonFormatter extends Formatter {
 			if (s == 0) {
 				writer.append(string);
 			} else {
-				writer.append(string, s, i - s);
+				writer.append(string, s, i);
 			}
 		}
 	}
