@@ -12,9 +12,7 @@
 package com.braintribe.logging.juli.formatters.json;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.UncheckedIOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +49,7 @@ public class JsonFormatter extends Formatter {
 	static final String FIELDS_PROPERTY_DEFAULT = Arrays.asList(LogRecordField.values()).stream().map(LogRecordField::getName)
 			.collect(Collectors.joining(","));
 	private static final String DATEFORMAT_PROPERTY = "dateFormat";
-	static final String DATEFORMAT_PROPERTY_DEFAULT = "%14$s";
+	public static final String DATEFORMAT_PROPERTY_DEFAULT = "%14$s";
 
 	private CompiledFormatter compiledFormatter;
 
@@ -117,7 +115,8 @@ public class JsonFormatter extends Formatter {
 	public String format(LogRecord logRecord) {
 		String fieldsString;
 		if (!logRecordFields.isEmpty()) {
-			StringBuilder fieldsStringBuilder = new StringBuilder("{");
+			StringBuilder fieldsStringBuilder = new StringBuilder(1024);
+			fieldsStringBuilder.append("{");
 			for (Pair<LogRecordField, Function<LogRecord, Object>> pair : logRecordFields) {
 				Object fieldValue = pair.second().apply(logRecord);
 				if (fieldValue != null) {
@@ -164,7 +163,7 @@ public class JsonFormatter extends Formatter {
 
 	// ********************** COPY START *******************************************
 	public static String escape(String s) throws IOException {
-		StringWriter writer = new StringWriter();
+		StringBuilder writer = new StringBuilder(s.length() + 16);
 		writeEscaped(writer, s);
 		return writer.toString();
 	}
@@ -187,7 +186,7 @@ public class JsonFormatter extends Formatter {
 		}
 	}
 
-	public static void writeEscaped(Writer writer, String string) throws IOException {
+	public static void writeEscaped(StringBuilder writer, String string) throws IOException {
 		int len = string.length();
 		int s = 0;
 		int i = 0;
@@ -198,17 +197,17 @@ public class JsonFormatter extends Formatter {
 			if (c < 128) {
 				esc = ESCAPES[c];
 				if (esc != null) {
-					writer.write(string, s, i - s);
-					writer.write(esc);
+					writer.append(string, s, i - s);
+					writer.append(esc);
 					s = i + 1;
 				}
 			}
 		}
 		if (i > s) {
 			if (s == 0) {
-				writer.write(string);
+				writer.append(string);
 			} else {
-				writer.write(string, s, i - s);
+				writer.append(string, s, i - s);
 			}
 		}
 	}

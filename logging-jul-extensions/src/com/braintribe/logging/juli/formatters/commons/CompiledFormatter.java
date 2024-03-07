@@ -21,12 +21,11 @@ import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Deque;
 import java.util.DuplicateFormatFlagsException;
 import java.util.FormatFlagsConversionMismatchException;
@@ -48,6 +47,7 @@ import java.util.function.Function;
 import java.util.logging.LogRecord;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.braintribe.exception.Exceptions;
 import com.braintribe.logging.juli.handlers.util.NullWriter;
@@ -65,7 +65,7 @@ public final class CompiledFormatter {
 	private int maxIndex = 0;
 
 	private static final DateTimeFormatter ISO8601_DATE_WITH_MS_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-			.withLocale(Locale.US);
+			.withLocale(Locale.US).withZone(ZoneOffset.systemDefault());
 
 	/**
 	 * Used by {@link #format(LogRecord)} to cache short logger names.
@@ -146,9 +146,7 @@ public final class CompiledFormatter {
 				return new Function<LogRecord, Object>() {
 					@Override
 					public Object apply(LogRecord logRecord) {
-						Calendar calendar = new GregorianCalendar(l);
-						calendar.setTimeInMillis(logRecord.getMillis());
-						return calendar;
+						return Instant.ofEpochMilli(logRecord.getMillis());
 					}
 				};
 			case LEVEL:
@@ -252,9 +250,7 @@ public final class CompiledFormatter {
 				return new Function<LogRecord, Object>() {
 					@Override
 					public Object apply(LogRecord logRecord) {
-						Date date = new Date(logRecord.getMillis());
-						ZonedDateTime dateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.systemDefault());
-						return ISO8601_DATE_WITH_MS_FORMAT.format(dateTime);
+						return ISO8601_DATE_WITH_MS_FORMAT.format(Instant.ofEpochMilli(logRecord.getMillis()));
 					}
 				};
 			case THREAD:
@@ -286,83 +282,78 @@ public final class CompiledFormatter {
 			return null;
 		}
 
-		String shortLoggerName;
-		shortLoggerName = loggerNamesToShortLoggerNames.get(loggerName);
-		if (shortLoggerName == null) {
+		return loggerNamesToShortLoggerNames.computeIfAbsent(loggerName, __ -> {
 			final int lastDotIndex = loggerName.lastIndexOf('.');
 			if (lastDotIndex > 0 && lastDotIndex < loggerName.length() - 1) {
-				shortLoggerName = loggerName.substring(lastDotIndex + 1);
+				return loggerName.substring(lastDotIndex + 1);
 			} else {
-				shortLoggerName = loggerName;
+				return loggerName;
 			}
-			loggerNamesToShortLoggerNames.put(loggerName, shortLoggerName);
-		}
+		});
 
-		return shortLoggerName;
 	}
 
 	/**
 	 * Returns the logger name with short packages for the passed logger name. See {@link #format(LogRecord)} for more info.
 	 */
 	private static String getLoggerNameWithShortPackages(final String loggerName) {
-		if ((loggerName == null) || (loggerName.trim().length() == 0)) {
+		if (loggerName == null) {
 			return null;
 		}
 
-		String shortLoggerName;
+		return loggerNamesToLoggerNamesWithShortPackages.computeIfAbsent(loggerName, __ -> {
 
-		shortLoggerName = loggerNamesToLoggerNamesWithShortPackages.get(loggerName);
-		if (shortLoggerName == null) {
-
-			String[] split = loggerName.split("\\.");
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < (split.length - 1); ++i) {
-				if (split[i].length() > 0) {
-					sb.append(split[i].substring(0, 1));
-					sb.append(".");
+			int dotIndices[] = new int[256];
+			int count = 0;
+			int len = loggerName.length();
+			for (int i = 0; i < len; ++i) {
+				if (loggerName.charAt(i) == '.') {
+					dotIndices[count] = i;
+					if (count < 255) {
+						count++;
+					}
 				}
 			}
-			sb.append(split[split.length - 1]);
-			shortLoggerName = sb.toString();
+			if (count == 0) {
+				return loggerName;
+			} else {
+				StringBuilder sb = new StringBuilder(loggerName.length());
+				sb.append(loggerName.charAt(0));
+				sb.append('.');
+				int limit = count - 1;
+				for (int i = 0; i < limit; ++i) {
+					int pos = dotIndices[i];
+					sb.append(loggerName.charAt(pos + 1));
+					sb.append('.');
+				}
+				int lastPos = dotIndices[count - 1];
+				sb.append(loggerName.substring(lastPos + 1));
+				return sb.toString();
+			}
 
-			loggerNamesToLoggerNamesWithShortPackages.put(loggerName, shortLoggerName);
-		}
+		});
 
-		return shortLoggerName;
 	}
 
 	private static String getNestedDiagnosticContext() {
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = new StringBuilder(128);
 
 		Deque<String> ndcStack = NestedDiagnosticContext.getNdc();
 		if ((ndcStack != null) && (!ndcStack.isEmpty())) {
-			for (String ndcElement : ndcStack) {
-				if (ndcElement != null) {
-					if (sb.length() > 0) {
-						sb.append(",");
-					}
-					sb.append(ndcElement);
-				}
-			}
+			return ndcStack.stream().collect(Collectors.joining(","));
 		}
 
 		return sb.toString();
 	}
 
 	private static String getMappedDiagnosticContext() {
-		StringBuilder sb = new StringBuilder("");
 
 		Map<String, String> mdc = NestedDiagnosticContext.getMdc();
 		if ((mdc != null) && (!mdc.isEmpty())) {
-			for (Map.Entry<String, String> entry : mdc.entrySet()) {
-				if (sb.length() > 0) {
-					sb.append(",");
-				}
-				sb.append(entry.getKey()).append("=").append(entry.getValue());
-			}
+			return mdc.entrySet().stream().map(e -> e.getKey().concat("=").concat(e.getValue())).collect(Collectors.joining(","));
 		}
 
-		return sb.toString();
+		return "";
 	}
 
 	private static String getSourceAndLoggerName(LogRecord logRecord) {
@@ -407,14 +398,16 @@ public final class CompiledFormatter {
 			throw new RuntimeException("No format was compiled.");
 		}
 
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(logRecord.getMessage() != null ? logRecord.getMessage().length() << 1 : 256);
 
-		// TODO: As soon as we switched to Java9+, this should be replaced by logRecord.getInstant()
-		Calendar calendar = new GregorianCalendar(l == null ? Locale.US : l);
-		calendar.setTimeInMillis(logRecord.getMillis());
+		LazyHolder<GregorianCalendar> calHolder = LazyHolder.from(() -> {
+			GregorianCalendar calendar = new GregorianCalendar(l == null ? Locale.US : l);
+			calendar.setTimeInMillis(logRecord.getMillis());
+			return calendar;
+		});
 
 		for (FormatString element : fsa) {
-			element.print(sb, calendar, logRecord, l);
+			element.print(sb, calHolder, logRecord, l);
 		}
 		return sb.toString();
 	}
@@ -469,7 +462,7 @@ public final class CompiledFormatter {
 	private interface FormatString {
 		int index();
 
-		void print(StringBuilder a, Calendar cal, LogRecord logRecord, Locale l) throws IOException;
+		void print(StringBuilder a, LazyHolder<GregorianCalendar> calHolder, LogRecord logRecord, Locale l) throws IOException;
 
 		@Override
 		String toString();
@@ -488,7 +481,7 @@ public final class CompiledFormatter {
 		}
 
 		@Override
-		public void print(StringBuilder a, Calendar cal, LogRecord logRecord, Locale l) throws IOException {
+		public void print(StringBuilder a, LazyHolder<GregorianCalendar> calHolder, LogRecord logRecord, Locale l) throws IOException {
 			a.append(s);
 		}
 
@@ -634,9 +627,9 @@ public final class CompiledFormatter {
 		}
 
 		@Override
-		public void print(StringBuilder a, Calendar cal, LogRecord logRecord, Locale l) throws IOException {
+		public void print(StringBuilder a, LazyHolder<GregorianCalendar> calHolder, LogRecord logRecord, Locale l) throws IOException {
 			if (dt) {
-				print(a, cal, c, l);
+				print(a, calHolder.get(), c, l);
 				return;
 			}
 			switch (c) {
