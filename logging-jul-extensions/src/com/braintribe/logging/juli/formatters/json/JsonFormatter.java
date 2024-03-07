@@ -30,14 +30,16 @@ import com.braintribe.logging.juli.formatters.commons.LogRecordField;
 import com.braintribe.logging.juli.formatters.simple.SimpleFormatter;
 
 /**
- * This is a formatter which produces JSON output. Each record is printed as one line. By the default the formatter will print all
- * {@link LogRecordField}s, which are the same as provided by the simple formatter. One can also specify the fields to include via property
- * {@value #FIELDS_PROPERTY}. The property expects a comma separated list of either field names, e.g. <code>date,level,message</code>. Alternatively
- * one can also specify the field index numbers, e.g. <code>1,4,5</code>. The numbers are the same as in
+ * This is a formatter which produces JSON output. Each record is printed as one line. By the default the formatter will
+ * print all {@link LogRecordField}s, which are the same as provided by the simple formatter. One can also specify the
+ * fields to include via property {@value #FIELDS_PROPERTY}. The property expects a comma separated list of either field
+ * names, e.g. <code>date,level,message</code>. Alternatively one can also specify the field index numbers, e.g.
+ * <code>1,4,5</code>. The numbers are the same as in
  * {@link #com.braintribe.logging.juli.formatters.simple.SimpleFormatter.format(LogRecord)}.
  * <p>
- * The format for field {@link LogRecordField#DATE} can be configured via property {@value #DATEFORMAT_PROPERTY}. The format is the same as used by
- * {@link SimpleFormatter#format(LogRecord)} (when formatting the date part). Default is {@value #DATEFORMAT_PROPERTY_DEFAULT}.
+ * The format for field {@link LogRecordField#DATE} can be configured via property {@value #DATEFORMAT_PROPERTY}. The
+ * format is the same as used by {@link SimpleFormatter#format(LogRecord)} (when formatting the date part). Default is
+ * {@value #DATEFORMAT_PROPERTY_DEFAULT}.
  *
  * @author michael.lafite
  */
@@ -157,8 +159,8 @@ public class JsonFormatter extends Formatter {
 		return fieldsString;
 	}
 
-	/* The methods below have been copied from com.braintribe.codec.marshaller.json.JsonStreamMarshaller, since we want to avoid adding another
-	 * dependency to this very low level library. */
+	/* The methods below have been copied from com.braintribe.codec.marshaller.json.JsonStreamMarshaller, since we want to
+	 * avoid adding another dependency to this very low level library. */
 
 	// ********************** COPY START *******************************************
 	public static String escape(String s) throws IOException {

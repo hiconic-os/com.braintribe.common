@@ -108,7 +108,8 @@ public final class CompiledFormatter {
 	 * Returns the locale set by the construction of this formatter.
 	 *
 	 * <p>
-	 * The {@link #format(java.util.Locale,String,Object...) format} method for this object which has a locale argument does not change this value.
+	 * The {@link #format(java.util.Locale,String,Object...) format} method for this object which has a locale argument does
+	 * not change this value.
 	 *
 	 * @return {@code null} if no localization is applied, otherwise a locale
 	 *
