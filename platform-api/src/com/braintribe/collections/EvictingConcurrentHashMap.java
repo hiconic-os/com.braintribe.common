@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
+import com.braintribe.utils.lcd.NullSafe;
+
 /**
  * Extension of the {@link ConcurrentHashMap} class that allows to specify a function that can decide whether an entry should be automatically removed
  * from the map.
@@ -45,27 +47,20 @@ public class EvictingConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> {
 
 	private static final long serialVersionUID = 1L;
 
-	private boolean evictOnPut = true;
+	private final Function<Map.Entry<K, V>, Boolean> evictionPolicy;
+	private final boolean evictOnPut;
 
-	private Function<Map.Entry<K, V>, Boolean> evictionPolicy;
-	private ReentrantLock evictionLock = new ReentrantLock();
+	private final ReentrantLock evictionLock = new ReentrantLock();
 	private long lastEvictionRun = -1L;
 	private long evictionInterval = 10_000L;
 	private int evictionThreshold = 10_000;
 
 	public EvictingConcurrentHashMap(Function<Map.Entry<K, V>, Boolean> evictionPolicy) {
-		super();
-		if (evictionPolicy == null) {
-			throw new IllegalArgumentException("The eviction policy must not be null.");
-		}
-		this.evictionPolicy = evictionPolicy;
+		this(evictionPolicy, true);
 	}
+
 	public EvictingConcurrentHashMap(Function<Map.Entry<K, V>, Boolean> evictionPolicy, boolean evictOnPut) {
-		super();
-		if (evictionPolicy == null) {
-			throw new IllegalArgumentException("The eviction policy must not be null.");
-		}
-		this.evictionPolicy = evictionPolicy;
+		this.evictionPolicy = NullSafe.nonNull(evictionPolicy, "evictionPolicy");
 		this.evictOnPut = evictOnPut;
 	}
 
@@ -110,7 +105,7 @@ public class EvictingConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> {
 	}
 
 	/**
-	 * Starts the eviction process. If {@link #doEviction()} returns false, this method does nothing. Otherwise, it will iterate over all entries and
+	 * Starts the eviction process. If {@link #isEvictionNeeded()} returns false, this method does nothing. Otherwise, it will iterate over all entries and
 	 * consult with the provided <code>eviction policy function</code> to determine whether the entry should be removed.
 	 * <p>
 	 * This process is synchronized so that two thread don't do the processing at the same time. It is, however, possible to have side-effects when
@@ -120,22 +115,23 @@ public class EvictingConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> {
 	 * effects.
 	 */
 	public void evict() {
-		if (doEviction()) {
+		if (isEvictionNeeded()) {
 			evictionLock.lock();
 			try {
 				// Make sure that it is really necessary; it could have happened in the meantime
-				if (doEviction()) {
+				if (!isEvictionNeeded())
+					return;
 
-					List<K> keysToEvict = new ArrayList<>();
-					for (Map.Entry<K, V> entry : super.entrySet()) {
-						if (evictionPolicy.apply(entry)) {
-							keysToEvict.add(entry.getKey());
-						}
-					}
-					keysToEvict.stream().forEach(key -> super.remove(key));
+				List<K> keysToEvict = new ArrayList<>();
+				for (Map.Entry<K, V> entry : super.entrySet())
+					if (evictionPolicy.apply(entry))
+						keysToEvict.add(entry.getKey());
 
-					lastEvictionRun = System.currentTimeMillis();
-				}
+				for (K key : keysToEvict)
+					super.remove(key);
+
+				lastEvictionRun = System.currentTimeMillis();
+
 			} finally {
 				evictionLock.unlock();
 			}
@@ -145,9 +141,9 @@ public class EvictingConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> {
 	/**
 	 * Determines whether one of the thresholds is reached that would trigger an eviction run.
 	 *
-	 * @return True, if an eviction run should take place, false otherwise.
+	 * @return true iff an eviction run should take place
 	 */
-	private boolean doEviction() {
+	private boolean isEvictionNeeded() {
 		long now = System.currentTimeMillis();
 		long timeSinceLastEviction = now - lastEvictionRun;
 		if (timeSinceLastEviction > evictionInterval) {
@@ -177,8 +173,8 @@ public class EvictingConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> {
 	 *            The type of the key to be stored.
 	 */
 	public static class KeyWithTimestamp<M> {
-		private M key;
-		private long timestamp;
+		private final M key;
+		private final long timestamp;
 
 		public KeyWithTimestamp(M key) {
 			this.key = key;
