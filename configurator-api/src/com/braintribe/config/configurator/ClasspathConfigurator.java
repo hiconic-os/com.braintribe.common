@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.braintribe.config.configurator.ConfiguratorPriority.Level;
 import com.braintribe.logging.Logger;
@@ -206,7 +207,7 @@ public class ClasspathConfigurator implements Configurator {
 
 	private List<Configurator> loadConfigurators(List<String> configuratorClasses) throws ConfiguratorException {
 
-		List<Configurator> configurators = configuratorClasses.parallelStream().map(cc -> initializeConfigurator(cc)).toList();
+		List<Configurator> configurators = configuratorClasses.parallelStream().map(cc -> initializeConfigurator(cc)).collect(Collectors.toList());
 		return configurators;
 
 	}
