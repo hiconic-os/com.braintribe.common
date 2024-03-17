@@ -20,6 +20,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -206,17 +207,14 @@ public class ClassLoaderTools {
 		}
 		if (classloader instanceof URLClassLoader) {
 			URLClassLoader urlClassLoader = (URLClassLoader) classloader;
-			for (URL entry : urlClassLoader.getURLs()) {
-				URI uri;
+			Arrays.stream(urlClassLoader.getURLs()).forEach(u -> {
 				try {
-					uri = entry.toURI();
+					URI uri = u.toURI();
+					entries.putIfAbsent(uri, classloader);
 				} catch (URISyntaxException e) {
-					throw new IllegalArgumentException(e);
+					logger.error("Could not create an URI from IRL " + u, e);
 				}
-				if (!entries.containsKey(uri)) {
-					entries.put(uri, classloader);
-				}
-			}
+			});
 		}
 		return entries;
 	}

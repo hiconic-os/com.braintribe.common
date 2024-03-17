@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.braintribe.config.configurator.ConfiguratorPriority.Level;
 import com.braintribe.logging.Logger;
@@ -34,8 +36,7 @@ import com.braintribe.utils.lcd.StopWatch;
  * 
  * <ul>
  * <li>Searching for configurator files ({@code META-INF/.configurator}) in the classpath;</li>
- * <li>Instantiating the {@link Configurator}(s) defined, by their line-separated fully qualified names, in such
- * files;</li>
+ * <li>Instantiating the {@link Configurator}(s) defined, by their line-separated fully qualified names, in such files;</li>
  * <li>Invoking {@link Configurator#configure()} in the instantiated configurators.</li>
  * </ul>
  * 
@@ -64,31 +65,34 @@ public class ClasspathConfigurator implements Configurator {
 
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.intermediate(context.getServletContextPath());
-		
+
 		List<Configurator> configurators = loadConfigurators();
-		
+
 		stopWatch.intermediate("Load Configurators");
 
 		sortConfiguratorsByPrio(configurators);
 
 		stopWatch.intermediate("Sort");
-		
+
 		for (Configurator configurator : configurators) {
 
 			log.trace(() -> "Configuring " + configurator + " ... ");
 
 			configurator.configure();
-			
-			stopWatch.intermediate("Configurator "+configurator.toString());
+
+			stopWatch.intermediate("Configurator " + configurator.toString());
 
 			log.debug(() -> "Configured " + configurator);
 
 		}
 
-		log.trace(() -> "configure: "+stopWatch);
+		log.trace(() -> "configure: " + stopWatch);
 	}
 
 	private static void sortConfiguratorsByPrio(List<Configurator> configurators) {
+
+		Map<Configurator, ConfiguratorPriority> priorityMap = new HashMap<>();
+
 		Collections.sort(configurators, new Comparator<Configurator>() {
 			@Override
 			public int compare(Configurator c1, Configurator c2) {
@@ -105,8 +109,8 @@ public class ClasspathConfigurator implements Configurator {
 					return 0;
 				}
 
-				ConfiguratorPriority c1p = c1.getClass().getAnnotation(ConfiguratorPriority.class);
-				ConfiguratorPriority c2p = c2.getClass().getAnnotation(ConfiguratorPriority.class);
+				ConfiguratorPriority c1p = priorityMap.computeIfAbsent(c1, __ -> c1.getClass().getAnnotation(ConfiguratorPriority.class));
+				ConfiguratorPriority c2p = priorityMap.computeIfAbsent(c2, __ -> c2.getClass().getAnnotation(ConfiguratorPriority.class));
 
 				int level = priority(c1p).compareTo(priority(c2p));
 
@@ -169,35 +173,26 @@ public class ClasspathConfigurator implements Configurator {
 
 	private List<Configurator> loadConfigurators(URL configuratorResourceFile) throws ConfiguratorException {
 
-		BufferedReader in = null;
-		try {
-			in = new BufferedReader(new InputStreamReader(configuratorResourceFile.openStream()));
+		List<String> configuratorClasses = new ArrayList<String>();
+
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(configuratorResourceFile.openStream()))) {
+
+			String configuratorClassName;
+			try {
+				while ((configuratorClassName = in.readLine()) != null) {
+					configuratorClassName = configuratorClassName.trim();
+					if (!configuratorClassName.isEmpty()) {
+						configuratorClasses.add(configuratorClassName);
+					}
+				}
+			} catch (IOException e) {
+				throw new ConfiguratorException("Failed to read from [ " + configuratorResourceFile + " ]"
+						+ (e.getMessage() != null && !e.getMessage().isEmpty() ? ": " + e.getMessage() : ""), e);
+			}
+
 		} catch (IOException e) {
 			throw new ConfiguratorException("Failed to open stream to [ " + configuratorResourceFile + " ]"
 					+ (e.getMessage() != null && !e.getMessage().isEmpty() ? ": " + e.getMessage() : ""), e);
-		}
-
-		List<String> configuratorClasses = new ArrayList<String>();
-
-		String configuratorClassName;
-		try {
-			while ((configuratorClassName = in.readLine()) != null) {
-				configuratorClassName = configuratorClassName.trim();
-				if (!configuratorClassName.isEmpty()) {
-					configuratorClasses.add(configuratorClassName);
-				}
-			}
-		} catch (IOException e) {
-			throw new ConfiguratorException("Failed to read from [ " + configuratorResourceFile + " ]"
-					+ (e.getMessage() != null && !e.getMessage().isEmpty() ? ": " + e.getMessage() : ""), e);
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					log.warn(() -> "Failed to close [ " + configuratorResourceFile + " ] reader: " + e.getMessage(), e);
-				}
-			}
 		}
 
 		if (configuratorClasses.isEmpty()) {
@@ -211,12 +206,7 @@ public class ClasspathConfigurator implements Configurator {
 
 	private List<Configurator> loadConfigurators(List<String> configuratorClasses) throws ConfiguratorException {
 
-		List<Configurator> configurators = new ArrayList<Configurator>(configuratorClasses.size());
-
-		for (String configuratorClassName : configuratorClasses) {
-			configurators.add(initializeConfigurator(configuratorClassName));
-		}
-
+		List<Configurator> configurators = configuratorClasses.parallelStream().map(cc -> initializeConfigurator(cc)).toList();
 		return configurators;
 
 	}
@@ -270,7 +260,7 @@ public class ClasspathConfigurator implements Configurator {
 		try {
 			configurator = configuratorClass.getDeclaredConstructor().newInstance();
 			log.trace(() -> "Instantiated configurator of type " + configuratorClass.getName());
-			
+
 		} catch (Exception e) {
 			throw new ConfiguratorException("Failed to instantiate configurator of type [ " + configuratorClass + " ]"
 					+ (e.getMessage() != null && !e.getMessage().isEmpty() ? ": " + e.getMessage() : ""), e);
@@ -279,6 +269,5 @@ public class ClasspathConfigurator implements Configurator {
 		return configurator;
 
 	}
-	
 
 }
