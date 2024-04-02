@@ -140,7 +140,8 @@ public abstract class AbstractAnsiConsole implements Console, ConsoleOutputs {
 						case FG_BLUE:
 						case FG_MAGENTA:
 						case FG_CYAN:
-						case FG_WHITE | FG_DEFAULT:
+						case FG_WHITE:
+						case FG_DEFAULT:
 						case FG_BRIGHT_BLACK:
 						case FG_BRIGHT_RED:
 						case FG_BRIGHT_GREEN:
