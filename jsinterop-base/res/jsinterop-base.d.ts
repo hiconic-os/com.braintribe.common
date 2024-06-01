@@ -441,6 +441,7 @@ declare namespace $tf {
 	interface Date extends Comparable<Date> {}
 	class Date {
 		static UTC(year: number, month: number, date: number, hrs: number, min: number, sec: number): Long;
+		static fromJsDate(jsDate: globalThis.Date): Date;
 		static now(): Long;
 		protected static padTwo(number: number): string;
 		static parse(s: string): Long;
@@ -448,7 +449,6 @@ declare namespace $tf {
 		before(when: Date): boolean;
 		clone(): any;
 		compareTo(other: Date): number;
-		dateValue(): Date;
 		equals(obj: any): boolean;
 		getDate(): number;
 		getDay(): number;
@@ -492,6 +492,7 @@ declare namespace $tf {
 		toGMTString(): string;
 		toISOString(): string;
 		toJSON(): string;
+		toJsDate(): globalThis.Date;
 		toLocaleDateString(): string;
 		toLocaleString(): string;
 		toLocaleTimeString(): string;
@@ -761,85 +762,6 @@ declare namespace $tf.session {
 	interface AsyncCallback<T> {
 		onFailure(caught: $tf.Throwable): void;
 		onSuccess(result: T): void;
-	}
-
-}
-
-declare namespace $tf.view {
-
-	// class com.google.gwt.core.client.JsDate
-	class JsDate {
-		static UTC(year: number, month: number, dayOfMonth: number, hours: number, minutes: number, seconds: number, millis: number): number;
-		static create(): JsDate;
-		static createByMilliseconds(milliseconds: number): JsDate;
-		static createByString(dateString: string): JsDate;
-		static createByYearAndMonth(year: number, month: number): JsDate;
-		static createByYearMonthAndDay(year: number, month: number, dayOfMonth: number): JsDate;
-		static createByYearMonthDayAndHour(year: number, month: number, dayOfMonth: number, hours: number): JsDate;
-		static createByYearMonthDayHourAndMinute(year: number, month: number, dayOfMonth: number, hours: number, minutes: number): JsDate;
-		static createByYearMonthDayHourMinuteAndSecond(year: number, month: number, dayOfMonth: number, hours: number, minutes: number, seconds: number): JsDate;
-		static createByYearMonthDayHourMinuteSecondAndMilli(year: number, month: number, dayOfMonth: number, hours: number, minutes: number, seconds: number, millis: number): JsDate;
-		static now(): number;
-		static parse(dateString: string): number;
-		getDate(): number;
-		getDay(): number;
-		getFullYear(): number;
-		getHours(): number;
-		getMilliseconds(): number;
-		getMinutes(): number;
-		getMonth(): number;
-		getSeconds(): number;
-		getTime(): number;
-		getTimezoneOffset(): number;
-		getUTCDate(): number;
-		getUTCDay(): number;
-		getUTCFullYear(): number;
-		getUTCHours(): number;
-		getUTCMilliseconds(): number;
-		getUTCMinutes(): number;
-		getUTCMonth(): number;
-		getUTCSeconds(): number;
-		getYear(): number;
-		setDate(dayOfMonth: number): number;
-		setFullYear(year: number): number;
-		setFullYearByYearAndMonth(year: number, month: number): number;
-		setFullYearByYearMonthAndDay(year: number, month: number, day: number): number;
-		setHours(hours: number): number;
-		setHoursByHourAndMinute(hours: number, mins: number): number;
-		setHoursByHourMinuteAndSecond(hours: number, mins: number, secs: number): number;
-		setHoursByHourMinuteSecondAndMilli(hours: number, mins: number, secs: number, ms: number): number;
-		setMinutes(minutes: number): number;
-		setMinutesByMinuteAndSecond(minutes: number, seconds: number): number;
-		setMinutesByMinuteSecondAndMilli(minutes: number, seconds: number, millis: number): number;
-		setMonth(month: number): number;
-		setMonthByMonthAndDay(month: number, dayOfMonth: number): number;
-		setSeconds(seconds: number): number;
-		setSecondsBySecondAndMilli(seconds: number, millis: number): number;
-		setTime(milliseconds: number): number;
-		setUTCDate(dayOfMonth: number): number;
-		setUTCFullYear(year: number): number;
-		setUTCFullYearByYearAndMonth(year: number, month: number): number;
-		setUTCFullYearByYearMonthAndDay(year: number, month: number, day: number): number;
-		setUTCHours(hours: number): number;
-		setUTCHoursByHourAndMinute(hours: number, mins: number): number;
-		setUTCHoursByHourMinuteAndSecond(hours: number, mins: number, secs: number): number;
-		setUTCHoursByHourMinuteSecondAndMilli(hours: number, mins: number, secs: number, ms: number): number;
-		setUTCMinutes(minutes: number): number;
-		setUTCMinutesByMinuteAndSecond(minutes: number, seconds: number): number;
-		setUTCMinutesByMinuteSecondAndMilli(minutes: number, seconds: number, millis: number): number;
-		setUTCMonth(month: number): number;
-		setUTCMonthByMonthAndDay(month: number, dayOfMonth: number): number;
-		setUTCSeconds(seconds: number): number;
-		setUTCSecondsAndMillis(seconds: number, millis: number): number;
-		setYear(year: number): number;
-		toDateString(): string;
-		toGMTString(): string;
-		toLocaleDateString(): string;
-		toLocaleString(): string;
-		toLocaleTimeString(): string;
-		toTimeString(): string;
-		toUTCString(): string;
-		valueOf(): number;
 	}
 
 }
