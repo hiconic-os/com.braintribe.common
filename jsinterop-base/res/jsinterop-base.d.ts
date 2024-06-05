@@ -1,3 +1,8 @@
+type double = $T.Double;
+type float = $T.Float;
+type set<T> = globalThis.Set<T>;
+type map<K, V> = globalThis.Map<K, V>;
+
 declare namespace $T {
 
     class Double extends Number {
