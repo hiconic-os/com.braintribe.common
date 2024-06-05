@@ -1,3 +1,17 @@
+declare namespace $T {
+
+    class Double extends Number {
+        constructor(value: number);
+        type(): string; // returns 'd'
+    }
+
+    class Float extends Number {
+        constructor(value: number);
+        type(): string; // returns 'f'
+    }
+
+}
+
 declare namespace $tf {
 
 	// interface java.util.function.BiConsumer
