@@ -15,6 +15,7 @@ import static com.braintribe.testing.junit.assertions.assertj.core.api.Assertion
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.UUID;
 
 import org.junit.After;
@@ -40,15 +41,19 @@ public class FileToolsCopyDirectoryTest {
 		assertFilesExistAndAreDirectories(emptyFolder);
 	}
 
-	// PGA: What exactly is this test doing on Linux? At what point is the exception expected?
-	@Test(expected = RuntimeException.class)
+	@Test(expected = UncheckedIOException.class)
 	public void testDirCopy_noFollowLinks() throws IOException {
 		if (OsTools.getOperatingSystem() == OsTools.OperatingSystem.Linux) {
 			File source = FileTools.getFile("res/DirCopyTestWithLinks/", true, false, false, true, true);
 			target = FileTools.createNewTempDir("tempFile" + UUID.randomUUID());
+			// fails with
+			//   java.io.UncheckedIOException: Error while copying file /path/to/platform-api-test/res/DirCopyTestWithLinks/linkFolder1 to /tmp/tempFile03b8f1c6-4be0-4549-bd4f-f8c73eea3708/linkFolder1.
+			//   ...
+			//   Caused by: java.io.FileNotFoundException: res/DirCopyTestWithLinks/linkFolder1 (Is a directory)
+			// (error says it's a directory, but it's actually a symlink to that folder) 
 			FileTools.copyDirectory(source, target);
 		} else {
-			throw new RuntimeException("thrown on purpose");
+			throw new UncheckedIOException(new IOException("test implemented only for Linux"));
 		}
 	}
 
