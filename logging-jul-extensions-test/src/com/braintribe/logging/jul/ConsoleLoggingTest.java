@@ -20,8 +20,10 @@ import java.io.PrintStream;
 import java.util.logging.LogManager;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import com.braintribe.logging.Logger;
+import com.braintribe.testing.category.KnownIssue;
 import com.braintribe.utils.CommonTools;
 import com.braintribe.utils.ReflectionTools;
 import com.braintribe.utils.StringTools;
@@ -34,6 +36,8 @@ import com.braintribe.utils.ThrowableTools;
  *
  * @author michael.lafite
  */
+// Fails on Java 9+, because field java.io.FilterOutputStream.out can't be accessed unless module java.io is opened.
+@Category(KnownIssue.class)
 public class ConsoleLoggingTest {
 
 	private static Logger logger = Logger.getLogger(ConsoleLoggingTest.class);
