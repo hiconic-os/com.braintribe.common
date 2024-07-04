@@ -184,18 +184,16 @@ public class StringTools {
 	 * <code>string</code> is <code>null</code>, <code>null</code> is returned. If <code>searchedString</code> is <code>null</code>, the
 	 * <code>string</code> is returned. If <code>searchedString</code> cannot be found in <code>string</code>, an empty string is returned.
 	 *
-	 * @param lastOccurrenceInsteadOfFirst
+	 * @param lastOccurrence
 	 *            specifies whether to search for the first or the last occurrence.
 	 */
-	public static String getSubstringAfter(final String string, final String searchedString, final boolean lastOccurrenceInsteadOfFirst) {
-		if ((string == null) || (searchedString == null)) {
+	public static String getSubstringAfter(String string, String searchedString, boolean lastOccurrence) {
+		if (string == null || searchedString == null)
 			return string;
-		}
 
-		final int index = (lastOccurrenceInsteadOfFirst ? string.lastIndexOf(searchedString) : string.indexOf(searchedString));
-		if (index < Numbers.ZERO) {
+		int index = lastOccurrence ? string.lastIndexOf(searchedString) : string.indexOf(searchedString);
+		if (index < 0)
 			return "";
-		}
 
 		return string.substring(index + searchedString.length());
 	}
@@ -443,7 +441,7 @@ public class StringTools {
 	 * Removes given suffix from the given string. If this string does not end with such suffix, the string is returned unmodified.
 	 */
 	public static String removeSuffixIfEligible(String text, String maybeSuffix) {
-		return text.endsWith(maybeSuffix) ? removeSuffix(text, maybeSuffix) : text;
+		return text.endsWith(maybeSuffix) ? removeLastNCharacters(text, maybeSuffix.length()) : text;
 	}
 
 	/**
@@ -454,7 +452,7 @@ public class StringTools {
 	 */
 	public static String removeSuffix(String string, String suffix) throws IllegalArgumentException {
 		if (string.endsWith(suffix)) {
-			return StringTools.removeLastNCharacters(string, suffix.length());
+			return removeLastNCharacters(string, suffix.length());
 		} else {
 			throw new IllegalArgumentException("The passed string doesn't end with the specified suffix! "
 					+ CommonTools.getParametersString("string", string, "suffix", suffix));
