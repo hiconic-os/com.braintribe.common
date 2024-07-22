@@ -206,6 +206,12 @@ declare namespace $T {
 }
 
 declare namespace $tf {
+	const Symbol: {
+		readonly enumType: unique symbol
+	}
+}
+
+declare namespace $tf {
 
 	// interface java.util.function.BiConsumer
 	interface BiConsumer<T, U> {
