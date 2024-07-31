@@ -23,6 +23,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -30,6 +32,7 @@ import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
+import java.util.stream.Collectors;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,6 +43,7 @@ public class LoggerFilterTest {
 
 	protected ByteArrayOutputStream logBuffer = null;
 	protected StreamHandler streamHandler = null;
+	protected Map<String, Logger> loggerMap = new HashMap<>();
 
 	public void addStreamHandler(String loggerName) throws Exception {
 		if (this.logBuffer == null) {
@@ -50,6 +54,8 @@ public class LoggerFilterTest {
 
 		java.util.logging.Logger logger = java.util.logging.Logger.getLogger(loggerName);
 		logger.addHandler(this.streamHandler);
+
+		loggerMap.put(loggerName, logger);
 	}
 
 	@Test
@@ -270,6 +276,7 @@ public class LoggerFilterTest {
 	}
 
 	protected void initializeLogging(String loggerConfig, String... loggerNames) throws Exception {
+		String loggerNamesFlat = Arrays.stream(loggerNames).collect(Collectors.joining(","));
 		// @formatter:off
 		String loggingConfiguration =
 				"### Levels ###\n"+
@@ -284,7 +291,7 @@ public class LoggerFilterTest {
 				"com.braintribe.logging.juli.handlers.ConsoleHandler.formatter = com.braintribe.logging.juli.formatters.simple.SimpleFormatter1\n"+
 				"com.braintribe.logging.juli.handlers.ConsoleHandler.filter = com.braintribe.logging.juli.filters.logger.LoggerFilter1\n"+
 				"\n### Filters ###\n"+
-				"com.braintribe.logging.juli.filters.logger.LoggerFilter1.loggerNames = " + loggerNames + "\n";
+				"com.braintribe.logging.juli.filters.logger.LoggerFilter1.loggerNames = " + loggerConfig + "\n";
 		// @formatter:on
 
 		System.out.println("Using configuration:\n" + loggingConfiguration);
