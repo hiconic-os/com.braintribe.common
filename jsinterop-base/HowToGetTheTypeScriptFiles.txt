@@ -1,3 +1,5 @@
 Where did the res/jsinterop-base.d.ts come from?
 
 See typescript-writer-test (probably in com.braintribe.devrock).
+
+NOTE: This is probably deprecated, as it is not relevant for NPM modules.

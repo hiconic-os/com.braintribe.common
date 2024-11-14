@@ -17,8 +17,8 @@ package jsinterop.context;
 
 public interface JsInteropNamespaces {
 
-	String type = "$T";
-	String gm = "$tf";
+	String type = "T";
+	String gm = "hc";
 	
 	String attr = gm + ".attr";
 
