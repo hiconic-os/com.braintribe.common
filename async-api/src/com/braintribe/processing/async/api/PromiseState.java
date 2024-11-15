@@ -16,13 +16,14 @@
 package com.braintribe.processing.async.api;
 
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
 /**
  * @see Promise
  *
  * @author Dirk Scheffler
  */
-@JsType(namespace = "$tf.async")
+@JsType(namespace = JsInteropNamespaces.async)
 public enum PromiseState {
 	outstanding, canceled, failed, done
 }

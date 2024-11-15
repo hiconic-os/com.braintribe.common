@@ -23,8 +23,9 @@ import java.util.function.Function;
 
 import jsinterop.annotations.JsMethod;
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
-@JsType(namespace = "$tf.async")
+@JsType(namespace = JsInteropNamespaces.async)
 @SuppressWarnings("unusable-by-js")
 public interface AsyncCallback<T> {
 

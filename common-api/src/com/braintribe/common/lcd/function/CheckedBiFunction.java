@@ -16,12 +16,13 @@
 package com.braintribe.common.lcd.function;
 
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
 /**
  * @author peter.gazdik
  */
 @FunctionalInterface
-@JsType(namespace = "$tf.util")
+@JsType(namespace = JsInteropNamespaces.util)
 public interface CheckedBiFunction<T, U, R, E extends Throwable> {
 
 	R apply(T t, U u) throws E;

@@ -16,9 +16,10 @@
 package com.braintribe.common.lcd.function;
 
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
 @FunctionalInterface
-@JsType(namespace = "$tf.util")
+@JsType(namespace = JsInteropNamespaces.util)
 public interface XSupplier<T> extends CheckedSupplier<T, Exception> {
 	// Nothing to add
 }

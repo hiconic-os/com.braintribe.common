@@ -22,6 +22,7 @@ import com.braintribe.exception.CanceledException;
 
 import jsinterop.annotations.JsIgnore;
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
 /**
  * The Promise acts a future value coming from another thread and overcomes the problems of the java.util.concurrent.Future which cannot be a {@link Supplier}
@@ -29,7 +30,7 @@ import jsinterop.annotations.JsType;
  * 
  * @author Dirk Scheffler
  */
-@JsType(namespace = "$tf.async")
+@JsType(namespace = JsInteropNamespaces.async)
 public interface Promise<T> extends Supplier<T> {
     /**
      * Returns {@code true} if this promise was canceled before it completed

@@ -19,12 +19,13 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
 /**
  * @author peter.gazdik
  */
 @FunctionalInterface
-@JsType(namespace = "$tf.util")
+@JsType(namespace = JsInteropNamespaces.util)
 public interface CheckedTriConsumer<T, U, V, E extends Throwable> {
 
 	void accept(T t, U u, V v) throws E;

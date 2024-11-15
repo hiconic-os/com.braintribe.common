@@ -16,12 +16,13 @@
 package com.braintribe.common.lcd.function;
 
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
 /**
  * @author peter.gazdik
  */
 @FunctionalInterface
-@JsType(namespace = "$tf.util")
+@JsType(namespace = JsInteropNamespaces.util)
 public interface CheckedSupplier<T, E extends Throwable> {
 
 	T get() throws E;

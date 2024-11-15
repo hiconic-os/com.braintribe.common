@@ -16,12 +16,13 @@
 package com.braintribe.common.lcd.function;
 
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
 /**
  * @author peter.gazdik
  */
 @FunctionalInterface
-@JsType(namespace = "$tf.util")
+@JsType(namespace = JsInteropNamespaces.util)
 public interface XFunction<T, R> extends CheckedFunction<T, R, Exception> {
 	// nothing to add
 }

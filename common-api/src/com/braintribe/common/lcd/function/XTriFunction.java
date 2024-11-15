@@ -16,12 +16,13 @@
 package com.braintribe.common.lcd.function;
 
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
 /**
  * @author peter.gazdik
  */
 @FunctionalInterface
-@JsType(namespace = "$tf.util")
+@JsType(namespace = JsInteropNamespaces.util)
 public interface XTriFunction<T, U, V, R> extends CheckedTriFunction<T, U, V, R, Exception> {
 	// nothing to add
 }

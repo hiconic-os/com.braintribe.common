@@ -19,7 +19,9 @@ public interface JsInteropNamespaces {
 
 	String type = "T";
 	String gm = "hc";
-	
+
 	String attr = gm + ".attr";
+	String util = gm + ".util";
+	String async = gm + ".async";
 
 }

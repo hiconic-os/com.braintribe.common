@@ -23,11 +23,12 @@ import java.util.List;
 import java.util.Set;
 
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
 /**
  * @author peter.gazdik
  */
-@JsType(namespace = "$tf.util")
+@JsType(namespace = JsInteropNamespaces.util)
 public class Collections {
 
 	public static <T> List<T> list(T... ts) {

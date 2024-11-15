@@ -19,12 +19,13 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
 /**
  * @author peter.gazdik
  */
 @FunctionalInterface
-@JsType(namespace = "$tf.util")
+@JsType(namespace = JsInteropNamespaces.util)
 public interface XBiConsumer<T, U> extends CheckedBiConsumer<T, U, Exception> {
 
 

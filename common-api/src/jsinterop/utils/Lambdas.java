@@ -26,11 +26,12 @@ import java.util.function.Supplier;
 
 import jsinterop.annotations.JsFunction;
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
 /**
  * @author peter.gazdik
  */
-@JsType(namespace = "$tf.util")
+@JsType(namespace = JsInteropNamespaces.util)
 public class Lambdas {
 
 	// @formatter:off

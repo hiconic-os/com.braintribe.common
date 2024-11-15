@@ -20,12 +20,13 @@ import java.util.function.Predicate;
 
 import jsinterop.annotations.JsIgnore;
 import jsinterop.annotations.JsType;
+import jsinterop.context.JsInteropNamespaces;
 
 /**
  * @author peter.gazdik
  */
 @FunctionalInterface
-@JsType(namespace = "$tf.util")
+@JsType(namespace = JsInteropNamespaces.util)
 public interface XPredicate<T> extends CheckedPredicate<T, Exception> {
 
 	@Override
