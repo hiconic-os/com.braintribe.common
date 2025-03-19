@@ -23,10 +23,10 @@ import com.braintribe.console.output.ConsoleOutputContainer;
 import com.braintribe.console.output.ConsoleText;
 
 public abstract class AbstractAnsiConsole implements Console, ConsoleOutputs {
-	private boolean ansiConsole;
+	private final boolean ansiConsole;
 	private boolean stylesPrepared = false;
-	private Object outputMonitor = new Object();
-	private boolean resetStyles;
+	private final Object outputMonitor = new Object();
+	private final boolean resetStyles;
 
 	public AbstractAnsiConsole(boolean ansiConsole, boolean resetStyles) {
 		this.ansiConsole = ansiConsole;
@@ -258,4 +258,9 @@ public abstract class AbstractAnsiConsole implements Console, ConsoleOutputs {
 	}
 
 	protected abstract void _out(CharSequence text, boolean linebreak);
+
+	public boolean isAnsi() {
+		return ansiConsole;
+	}
+
 }
