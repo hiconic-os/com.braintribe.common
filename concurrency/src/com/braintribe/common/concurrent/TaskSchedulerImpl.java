@@ -162,16 +162,23 @@ public class TaskSchedulerImpl implements TaskScheduler, DestructionAware {
 		if (s_shutdown)
 			return false;
 
+		taskLock.writeLock().lock();
+		try {
+			return w_shutdown();
+		} finally {
+			taskLock.writeLock().unlock();
+		}
+	}
+
+	private boolean w_shutdown() {
+		if (s_shutdown)
+			return false;
+
 		s_shutdown = true;
 		log.info("Shutting down " + name);
 
 		// we need a copy to iterate over as canceling a task removes it from the list
-		taskLock.writeLock().lock();
-		try {
-			return cancelAllTasks(newList(s_tasks));
-		} finally {
-			taskLock.writeLock().unlock();
-		}
+		return cancelAllTasks(newList(s_tasks));
 	}
 
 	private boolean cancelAllTasks(List<TaskEntry> tasksCopy) {
@@ -235,6 +242,7 @@ public class TaskSchedulerImpl implements TaskScheduler, DestructionAware {
 			}
 
 			return true;
+
 		} finally {
 			taskLock.readLock().unlock();
 		}
@@ -279,7 +287,6 @@ public class TaskSchedulerImpl implements TaskScheduler, DestructionAware {
 				if (isCancelled)
 					cdl.countDown();
 			}
-
 		}
 
 		@Override
