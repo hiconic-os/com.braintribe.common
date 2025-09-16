@@ -25,7 +25,7 @@ package com.braintribe.provider;
  */
 public class Box<T> {
 
-	public T value;
+	public volatile T value;
 
 	public static <T> Box<T> of(T value) {
 		Box<T> result = new Box<T>();
