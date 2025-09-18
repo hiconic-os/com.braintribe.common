@@ -15,8 +15,6 @@
 // ============================================================================
 package com.braintribe.utils.stream.api;
 
-import com.braintribe.utils.IOTools;
-
 /**
  * A factory for {@link StreamPipe}s.
  * 
@@ -26,7 +24,7 @@ public interface StreamPipeFactory {
 	/**
 	 * Default size for the automatic buffers used by {@link #newPipe(String)}
 	 */
-	int AUTO_BUFFER_DEFAULT_SIZE = IOTools.SIZE_32K;
+	int AUTO_BUFFER_DEFAULT_SIZE = 1 << 15; // 32k
 
 	/**
 	 * Creates a new {@link StreamPipe} instance. In- and output streams of this pipe are internally automatically

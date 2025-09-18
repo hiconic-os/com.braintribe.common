@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="UTF-8"?><!--
 Copyright BRAINTRIBE TECHNOLOGY GMBH, Austria, 2002-2022
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,8 +21,7 @@ limitations under the License.
     </parent>
     <artifactId>stream-pipes</artifactId>
     <version>2.0.17</version>
-    <properties>
-    </properties>
+    <properties/>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -35,6 +34,11 @@ limitations under the License.
         <dependency>
             <groupId>com.braintribe.common</groupId>
             <artifactId>platform-api</artifactId>
+            <version>${V.com.braintribe.common}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.braintribe.common</groupId>
+            <artifactId>stream-pipes-api</artifactId>
             <version>${V.com.braintribe.common}</version>
         </dependency>
     </dependencies>

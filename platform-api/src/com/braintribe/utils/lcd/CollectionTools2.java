@@ -451,7 +451,7 @@ public class CollectionTools2 {
 
 	public static <T, E extends T> E single(Collection<T> c) {
 		if (size(c) == 1) {
-			return first(c);
+			return (E) first(c);
 		} else {
 			throw new IllegalArgumentException("Not a collection with a single element: " + c);
 		}
