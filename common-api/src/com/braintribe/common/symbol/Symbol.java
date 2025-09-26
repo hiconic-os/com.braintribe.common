@@ -56,9 +56,6 @@ package com.braintribe.common.symbol;
  * fontRegistry.lookup(BasicFonts.ARIAL);
  * fontRegistry.lookup("Arial");
  * }</pre>
- * 
- * <p>
- * This has the advantage over pure Strings in that the possible values can be looked-up and referenced, and unlike enums
  */
 @FunctionalInterface
 public interface Symbol {
