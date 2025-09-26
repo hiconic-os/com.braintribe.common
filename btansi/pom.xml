@@ -32,11 +32,11 @@ limitations under the License.
         </license>
     </licenses>
     <dependencies>
-        <dependency>
-            <groupId>org.fusesource.jansi</groupId>
-            <artifactId>jansi</artifactId>
-            <version>${V.org.fusesource.jansi}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.fusesource.jansi</groupId>-->
+<!--            <artifactId>jansi</artifactId>-->
+<!--            <version>${V.org.fusesource.jansi}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.braintribe.common</groupId>
             <artifactId>platform-api</artifactId>

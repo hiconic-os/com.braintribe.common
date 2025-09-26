@@ -15,9 +15,6 @@
 // ============================================================================
 package com.braintribe.ansi;
 
-import org.fusesource.jansi.internal.CLibrary;
-import org.fusesource.jansi.internal.Kernel32;
-
 import com.braintribe.logging.Logger;
 import com.braintribe.utils.OsTools;
 
@@ -44,60 +41,12 @@ public class AnsiTools {
 		return nullableString != null && nullableString.startsWith(prefix);
 	}
 
-	private static Boolean colorStdout;
-	private static Boolean colorStderr;
-
 	public static boolean isAnsiStdout() {
-		try {
-			return tryIsAnsiStdout();
-		} catch (Throwable t) {
-			log.warn("Error while detecting ANSI support for std out.", t);
-			return colorStdout = false;
-		}
-	}
-
-	private static boolean tryIsAnsiStdout() {
-		if (colorStdout != null)
-			return colorStdout;
-
-		// See org.fusesource.jansi.AnsiConsole
-		if (IS_WINDOWS && !IS_CYGWIN && !IS_MINGW_XTERM)
-			return colorStdout = isAnsiStdout_Win(Kernel32.STD_OUTPUT_HANDLE);
-		else
-			return colorStdout = CLibrary.isatty(CLibrary.STDOUT_FILENO) == 1;
+		return System.console().isTerminal();
 	}
 
 	public static boolean isAnsiStderr() {
-		try {
-			return tryIsAnsiStderr();
-		} catch (Throwable t) {
-			log.warn("Error while detecting ANSI support for std err.", t);
-			return colorStderr = false;
-		}
+		// due to the lack of a given API (maybe upcoming will be: Console.isTerminal, Files.isTerminal) we use the normal console to detect which is maybe wrong 
+		return System.console().isTerminal();
 	}
-
-	private static boolean tryIsAnsiStderr() {
-		if (colorStderr != null)
-			return colorStderr;
-
-		// See org.fusesource.jansi.AnsiConsole
-		if (IS_WINDOWS && !IS_CYGWIN && !IS_MINGW_XTERM)
-			return colorStderr = isAnsiStdout_Win(Kernel32.STD_ERROR_HANDLE);
-		else
-			return colorStderr = CLibrary.isatty(CLibrary.STDERR_FILENO) == 1;
-	}
-
-	private static boolean isAnsiStdout_Win(int handleCode) {
-		long hStdout = Kernel32.GetStdHandle(handleCode);
-		// ENABLE_VIRTUAL_TERMINAL_PROCESSING
-		return enableVirtualTerminal(hStdout);
-	}
-
-	private static boolean enableVirtualTerminal(long handle) {
-		int mode[] = new int[1];
-
-		return Kernel32.GetConsoleMode(handle, mode) != 0 && //
-				Kernel32.SetConsoleMode(handle, mode[0] | 0x0004) != 0;
-	}
-
 }
