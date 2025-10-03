@@ -582,6 +582,13 @@ public class CollectionTools2 {
 		return result;
 	}
 
+	public static boolean containsAny(Set<?> set, Iterable<?> elementsToTest) {
+		for (Object e : elementsToTest)
+			if (set.contains(e))
+				return true;
+		return false;
+	}
+
 	public static <T> List<Set<T>> splitToSets(Iterable<? extends T> elements, int limitSize) {
 		return split(elements, limitSize, CollectionTools2::newSet);
 	}
