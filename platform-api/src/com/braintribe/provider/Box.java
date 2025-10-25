@@ -16,10 +16,8 @@
 package com.braintribe.provider;
 
 /**
- * Simple version of a {@link Holder}. The main purpose is to wrap a local variable, so it can be accessed within a lambda even if it's not final
- * (just the box itself is final
- * <p>
- * Of course, only do that if you know what you're doing.
+ * Simple wrapper around a value, an be e.g. used to wrap a local variable, so it can be accessed within a lambda even if it's not final (just the box
+ * itself is final).
  *
  * @author peter.gazdik
  */

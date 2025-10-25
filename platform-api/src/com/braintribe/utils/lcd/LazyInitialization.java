@@ -21,14 +21,14 @@ package com.braintribe.utils.lcd;
  * This implementation is thread safe.
  *
  * @see #run()
- * @see LazyInitialized
+ * @see Lazy
  */
 public class LazyInitialization {
 
-	private LazyInitialized<Void> lazyInitialized;
+	private Lazy<Void> lazyInitialized;
 
 	public LazyInitialization(Runnable runnable) {
-		this.lazyInitialized = new LazyInitialized<>(() -> {
+		this.lazyInitialized = new Lazy<>(() -> {
 			runnable.run();
 			return null;
 		});
