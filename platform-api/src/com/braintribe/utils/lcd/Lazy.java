@@ -92,7 +92,7 @@ public class Lazy<T> implements Supplier<T> {
 	 * Calling this in an uninitialized state (see {@link Lazy class documentation}) has no effect.
 	 */
 	public void close() {
-		if (itBox != null)
+		if (itBox == null)
 			return;
 
 		syncClose();
