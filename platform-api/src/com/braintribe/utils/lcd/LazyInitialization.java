@@ -15,8 +15,10 @@
 // ============================================================================
 package com.braintribe.utils.lcd;
 
+import java.util.function.Consumer;
+
 /**
- * Convenient wrapper for code that should only be executed once.
+ * Convenient wrapper for code that should only be executed once, with an optional cleanup.
  * <p>
  * This implementation is thread safe.
  *
@@ -28,18 +30,36 @@ public class LazyInitialization {
 	private Lazy<Void> lazyInitialized;
 
 	public LazyInitialization(Runnable runnable) {
+		this(runnable, (Consumer<Void>) null);
+	}
+
+	public LazyInitialization(Runnable runnable, Runnable cleanup) {
+		this(runnable, it -> cleanup.run());
+	}
+
+	private LazyInitialization(Runnable runnable, Consumer<Void> cleanup) {
 		this.lazyInitialized = new Lazy<>(() -> {
 			runnable.run();
 			return null;
-		});
+		}, cleanup);
 	}
 
 	/**
-	 * Runs the actual {@link Runnable} provided via constructor, but only on first invocation of this method. All subsequent invocations have no
-	 * effect.
+	 * Runs the initialization {@link Runnable} provided via constructor, but only on first invocation of this method. All subsequent invocations have
+	 * no effect, until {@link #shutDown()} is called which would reset the state.
 	 */
 	public void run() {
 		lazyInitialized.get();
+	}
+
+	/**
+	 * Runs the cleanup {@link Runnable} if provided via constructor, but only on first invocation of this method. All subsequent invocations have no
+	 * effect.
+	 * <p>
+	 * Resets the state, so calling {@link #run()} again would run the initialization again .
+	 */
+	public void shutDown() {
+		lazyInitialized.close();
 	}
 
 }

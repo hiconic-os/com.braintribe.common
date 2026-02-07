@@ -25,18 +25,18 @@ import com.braintribe.exception.Exceptions;
 import com.braintribe.provider.Box;
 
 /**
- * Convenient wrapper for an instance that should be initialized lazily. This wrapper instance is configured with a
- * constructor and an optional "destructor". The underlying instance can be accesses via the {@link #get()} method,
- * where the first invocation creates the instance using the supplied constructor, and each subsequent invocation
- * returns the exact same instance.
+ * Convenient wrapper for an instance that should be initialized lazily. This wrapper instance is configured with a constructor and an optional
+ * "destructor". The underlying instance can be accesses via the {@link #get()} method, where the first invocation creates the instance using the
+ * supplied constructor, and each subsequent invocation returns the exact same instance.
  * <p>
- * The underlying instance can also be closed using the {@link #close()} method.
+ * Calling the {@link #close()} method calls the destructor if provided, and calls the <code>close</code> method of the underlying instance if it is
+ * an {@link AutoCloseable}.
  * <p>
- * Newly created and closed wrapper is in an "uninitialized" state, and the first invocation of the {@link #get()}
- * method initializes it. Any subsequent {@linkplain #get()} invocation always returns the same instance. If we close
- * the wrapper, the next {@linkplain #get()} invocation returns a new instance.
+ * Both newly created and closed wrapper is in an "uninitialized" state, and the first invocation of {@link #get()} initializes it. Any subsequent
+ * {@linkplain #get()} invocation always returns the same instance. If we {@link #close()} the wrapper, the next {@linkplain #get()} invocation
+ * returns a new instance.
  * <p>
- * For simply executing some initialization code without initializing any field use {@link LazyInitialization}.
+ * For simply executing some initialization code without constructing a value use {@link LazyInitialization}.
  * <p>
  * This implementation is thread safe.
  *
@@ -85,9 +85,8 @@ public class Lazy<T> implements Supplier<T> {
 	}
 
 	/**
-	 * Closes the underlying instance if possible. If a "destructor" was given via
-	 * {@link #Lazy(Supplier, Consumer) constructor}, it will be invoked with the underlying instance, otherwise
-	 * if the instance is {@link AutoCloseable}, its <code>close</code> method will be called.
+	 * Closes the underlying instance if possible. If a "destructor" was given via {@link #Lazy(Supplier, Consumer) constructor}, it will be invoked
+	 * with the underlying instance, otherwise if the instance is {@link AutoCloseable}, its <code>close</code> method will be called.
 	 * <p>
 	 * Calling this in an uninitialized state (see {@link Lazy class documentation}) has no effect.
 	 */
