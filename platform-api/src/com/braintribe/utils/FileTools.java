@@ -1727,12 +1727,10 @@ public class FileTools extends com.braintribe.utils.lcd.FileTools {
 	 * @param stopDir
 	 *            The folder where the process should stop (will not be included in the resulting list)
 	 * @return A list of folders, up to the stopDir that are empty. When the startDir does not exist, an empty list is returned.
-	 * @throws IOException
-	 *             When the file system cannot be accessed.
 	 * @throws IllegalArgumentException
 	 *             When the startDir folder is either null or not a folder.
 	 */
-	public static List<File> collectEmptySuperFolders(File startDir, File stopDir) throws IOException {
+	public static List<File> collectEmptySuperFolders(File startDir, File stopDir) {
 		requireNonNull(startDir, "startDir must not be null.");
 
 		if (!startDir.exists()) {
