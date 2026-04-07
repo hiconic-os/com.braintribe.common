@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import com.braintribe.common.lcd.Constants;
 import com.braintribe.common.lcd.GenericRuntimeException;
@@ -768,11 +767,10 @@ public class StringTools {
 		return result;
 	}
 
-	/** ThisIsXYZText -> this-is--xyz-text */
+	/** ThisIsXYZText -> this-is--x-y-z-text */
 	public static String camelCaseToSocialDistancingCase(String s) {
-		return splitCamelCaseSmart(s).stream() //
-				.map(String::toLowerCase) //
-				.collect(Collectors.joining("-"));
+		List<String> tokens = splitCamelCaseSmart(s);
+		return join(tokens, "-").toLowerCase();
 	}
 
 	/** ThisIsXYZText -> THIS_IS_XYZ_TEXT */
@@ -786,8 +784,15 @@ public class StringTools {
 	}
 
 	private static String camelCaseToUnderscoreSeparated(String s) {
-		return splitCamelCaseSmart(s).stream() //
-				.collect(Collectors.joining("_"));
+		List<String> tokens = splitCamelCaseSmart(s);
+		return join(tokens, "_");
+	}
+
+	private static String join(List<String> tokens, String delimiter) {
+		StringJoiner sj = new StringJoiner(delimiter);
+		for (String token : tokens)
+			sj.add(token);
+		return sj.toString();
 	}
 
 	/** E.g. for "This1IsXYZStuff" returns ["This1", "Is", "XYZ", "StufF"]. */
