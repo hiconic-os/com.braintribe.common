@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.braintribe.common.lcd.function.CheckedSupplier;
 import com.braintribe.logging.Logger;
 import com.braintribe.utils.FileTools;
 import com.braintribe.utils.IOTools;
@@ -98,7 +99,7 @@ public class PlatformMimeTypeDetector implements MimeTypeDetector {
 		}
 
 		if (file != null) {
-			mimeType = getMimeType(file.toPath());
+			mimeType = this.getMimeType(file.getName(), file::toPath);
 		}
 
 		return defaultIfNull(mimeType);
@@ -107,16 +108,19 @@ public class PlatformMimeTypeDetector implements MimeTypeDetector {
 
 	@Override
 	public String getMimeType(InputStream input, String fileName) {
-
 		initialize();
 
 		String mimeType = null;
 
 		try {
 			Path path = tempPath(fileName);
+
 			try (OutputStream out = Files.newOutputStream(path)) {
-				IOTools.pump(input, out);
-				mimeType = getMimeType(path);
+				mimeType = getMimeType(fileName, () -> {
+					// We only pump the content if
+					IOTools.pump(input, out);
+					return path;
+				});
 			} finally {
 				Files.deleteIfExists(path);
 			}
@@ -168,22 +172,23 @@ public class PlatformMimeTypeDetector implements MimeTypeDetector {
 		return mimeTypeToExtensionMap.get(mimeType);
 	}
 
-	private String getMimeType(Path path) {
+	private <E extends Exception> String getMimeType(String fileName, CheckedSupplier<Path, E> pathSupplier) throws E {
 		String mimeType = null;
 
 		try {
 			FileNameMap fileNameMap = URLConnection.getFileNameMap();
-			mimeType = fileNameMap.getContentTypeFor(path.getFileName().toString());
-			if (mimeType != null && mimeType.equalsIgnoreCase(defaultMimeType)) {
+			mimeType = fileNameMap.getContentTypeFor(fileName);
+			if (mimeType != null && !mimeType.equalsIgnoreCase(defaultMimeType)) {
 				return mimeType;
 			}
 		} catch (Exception e) {
-			log.debug(() -> "Error while trying to get the content type of path " + path);
+			log.debug(() -> "Error while trying to get the content type of " + fileName);
 		}
 
+		Path path = pathSupplier.get();
 		try {
 			mimeType = Files.probeContentType(path);
-			if (mimeType != null && mimeType.equalsIgnoreCase(defaultMimeType)) {
+			if (mimeType != null && !mimeType.equalsIgnoreCase(defaultMimeType)) {
 				return mimeType;
 			}
 		} catch (Exception e) {
@@ -195,13 +200,19 @@ public class PlatformMimeTypeDetector implements MimeTypeDetector {
 	}
 
 	private Path tempPath(String fileName) {
-		Path path;
+		String prefix = "mime-type-detection-";
+		String suffix = fileName != null ? "-" + sanitizeTempName(fileName) : null;
+
 		try {
-			path = Files.createTempFile("mime-type-detection-", fileName != null ? "-" + fileName : null);
+			return Files.createTempFile(prefix, suffix);
+
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
-		return path;
+	}
+
+	public static String sanitizeTempName(String fileName) {
+		return fileName.replaceAll("[^a-zA-Z0-9._-]", "");
 	}
 
 	private String defaultIfNull(String mimeType) {

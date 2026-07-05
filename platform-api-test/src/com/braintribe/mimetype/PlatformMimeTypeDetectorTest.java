@@ -119,9 +119,20 @@ public class PlatformMimeTypeDetectorTest {
 
 	protected void checkMimeTypeWithFile(String source, String expectedMimeType, boolean includeName, boolean allowDefault) {
 		Path path = Paths.get("res/mimeTypeDetection/" + source);
+		String fileName = includeName ? path.getFileName().toString() : null;
 		File file = path.toFile();
-		String mimeType = PlatformMimeTypeDetector.instance.getMimeType(file, includeName ? path.getFileName().toString() : null);
-		assertMimeType(expectedMimeType, mimeType, allowDefault);
+
+		{
+			String mimeType = PlatformMimeTypeDetector.instance.getMimeType(file, fileName);
+			assertMimeType(expectedMimeType, mimeType, allowDefault);
+		}
+
+		try (InputStream in = new FileInputStream(file)) {
+			String mimeType = PlatformMimeTypeDetector.instance.getMimeType(in, fileName);
+			assertMimeType(expectedMimeType, mimeType, allowDefault);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void assertMimeType(String expected, String actual, boolean allowDefault) {
