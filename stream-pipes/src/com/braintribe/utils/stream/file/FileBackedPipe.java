@@ -42,9 +42,6 @@ import com.braintribe.utils.stream.api.StreamPipe;
  * The temporary file used by this pipe is deleted when no further reference is hold to it or when exiting the JVM. As
  * references are considered the pipe itself and its streams.
  * 
- * A monitor {@link #writeMonitor object} is used to tightly couple write and read operations to avoid a trade-off
- * between responsiveness and wasted cpu cycles.
- * 
  * @author Neidhart Orlich
  * @author Dirk Scheffler
  */
@@ -55,7 +52,8 @@ public class FileBackedPipe implements StreamPipe {
 	private final ReentrantLock outputLock = new ReentrantLock();
 	private final ReentrantLock writeLock = new ReentrantLock();
 	private final Condition bytesAvailableForWriting = writeLock.newCondition();
-	private int bytesWritten;
+	// volatile and long, as bytesWritten() reads it without holding the writeLock, and a long read is not even atomic otherwise
+	private volatile long bytesWritten;
 	private Throwable error;
 
 	private static Executor executor;
@@ -161,6 +159,11 @@ public class FileBackedPipe implements StreamPipe {
 	@Override
 	public boolean wasOutputStreamOpened() {
 		return outputStream != null;
+	}
+
+	@Override
+	public long bytesWritten() {
+		return bytesWritten;
 	}
 
 	private OutputStream openOutputStream(boolean acquire) {

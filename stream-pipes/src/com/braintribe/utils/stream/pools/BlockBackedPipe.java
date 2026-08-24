@@ -190,6 +190,11 @@ public class BlockBackedPipe implements StreamPipe {
 		return outputStream != null;
 	}
 
+	@Override
+	public long bytesWritten() {
+		return bytesWritten;
+	}
+
 	private OutputStream openOutputStream(boolean acquire) {
 		outputLock.lock();
 		try {
